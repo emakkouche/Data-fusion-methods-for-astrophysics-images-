@@ -23,7 +23,7 @@ Paths for data and saving files
 DATA = '/media/e.akkouche/DONNEES/Fusion_data/Data/'
 #SAVE = 'Expe/'
 SAVE = '/media/e.akkouche/DONNEES/Fusion_data/Save_result/'
-SAVE2 = '/media/e.akkouche/DONNEES/Fusion_data/Save_Zoptim_pp/'
+SAVE2 = '/media/e.akkouche/DONNEES/Fusion_data/result_sobolev_01_08/'
 PSF = DATA+'PSF/'
 SAVE_PATH = SAVE+'z_optim.fits'
 

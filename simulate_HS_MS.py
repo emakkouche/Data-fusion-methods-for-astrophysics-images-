@@ -57,7 +57,7 @@ def produce_HS_nir_bis(M, A, tabwave, fname, dname, snr=50, sigma=0, d=0.31):
         #avec ou sans les deux ortho la différence d'amplitude n'est pas grande 
         Hcrop *= 0
         
-        print('i = '+ str(i))  
+        #print('i = '+ str(i))  
         '''---------------------------------------'''
         
     print('\n********** Simulation Done  !!**********\n')
@@ -105,7 +105,7 @@ def reshape_psf(H,X):
         
     Hcrop[:,SHIFT:(SHIFT+H.shape[1])] = Hifft[RLbnd:RUbnd,:]
     
-    Hcrop /= np.sum(Hcrop)
+    #Hcrop /= np.sum(Hcrop)
     
     Hcrop = np.fft.fft2(np.fft.fftshift(Hcrop))
     

@@ -29,9 +29,9 @@ warnings.filterwarnings('ignore')
 
 """--------------------Generate image X and Yh--------------------"""
 #Yh = myproduce_HS_MS.main(DATA,DATA)
-Yh = simulate_HS_MS.main(DATA, DATA,sigma2 = 1)
+#Yh = simulate_HS_MS.main(DATA, DATA,sigma2 = 0.1)
 """--------------------Choose subspace dimension------------------"""
-S = mycheck_pca.my_choose_subspace(HS_IM)
+#S = mycheck_pca.my_choose_subspace(HS_IM)
 
 #Affichage complet
 # plt.semilogy(S);
@@ -55,27 +55,27 @@ S = mycheck_pca.my_choose_subspace(HS_IM)
 # Yh = fits.getdata(HS_IM)
 Lacp = 10
 
-V, Z, mean = mycheck_pca.my_pca_nirspec(Yh,Lacp)
+#V, Z, mean = mycheck_pca.my_pca_nirspec(Yh,Lacp)
 
 # # print('\n********** Saving PCA **********\n')
 
 # hdu = fits.PrimaryHDU(Z)
-# hdu.writeto(DATA+'Z2.fits', overwrite=True)
+# hdu.writeto(DATA+'Z.fits', overwrite=True)
 
 # hdu = fits.PrimaryHDU(V)
-# hdu.writeto(DATA+'V2.fits', overwrite=True)
+# hdu.writeto(DATA+'V.fits', overwrite=True)
 
 # hdu = fits.PrimaryHDU(mean)
-# hdu.writeto(DATA+'mean2.fits', overwrite=True)
+# hdu.writeto(DATA+'mean.fits', overwrite=True)
 
 # print('\n********** Saving Done !! **********\n')
 
 # V = np.load(DATA+'V.npy')
 # Z = np.load(DATA+'Z.npy')
 """--------------------Check PCA--------------------"""
-# Yh = fits.getdata(HS_IM)
-# V = fits.getdata(V_acp)
-# Z = fits.getdata(Z_acp)
+Yh = fits.getdata(HS_IM)
+V = fits.getdata(V_acp)
+Z = fits.getdata(Z_acp)
 
 #Xback,error = mycheck_pca.check_pca(V, Z, mean, Yh)
 
@@ -113,7 +113,7 @@ Lband,Lin,Col = Zfft.shape
 Zfft = np.reshape(Zfft,(Lband,Lin*Col))
 
 """--------------------Gradient Descent--------------------"""
-mus = (np.linspace(0,2,10))
+mus = np.log(np.linspace(1,3,10))
 
 err = np.zeros((len(mus),1))
 
@@ -131,7 +131,7 @@ for mu in mus:
         
         # Jmu.append(np.linalg.norm(Yfft-np.dot(V,Zoptim)*H)**2)
         # J2mu.append(J_Zoptim)
-        # Regmu.append(np.linalg.norm((D[0]+D[1])*np.reshape(Zoptim,(Lacp,nr,nc)))**2)
+        # Regmu.append(np.linalg.norm((D[0]+D[1])*np.reshape(Zoptim,(Lacp,NR,NC)))**2)
 
         Zifft = postprocess(Zoptim,Lacp)
         
@@ -139,36 +139,40 @@ for mu in mus:
         
         Xtrue = get_Xtrue(DATA,Band)
         
-        
         err[m] = snr(Xtrue,Xestim[Band,:,:])
         
         if err[m] > snr(Xtrue,Xbest):
             Xbest = Xestim[Band,:,:]
-        
-        plt.imshow(Xestim[Band,:,:])
-        plt.show()
-        plt.imshow(Yh[Band,:,:])
-        plt.show()
-        
+     
         m = m+1
-                
         
-        fname = SAVE2+'Zoptim_mu_version_tempo'+str(np.round(mu))
-        
+        fname = SAVE2+'Zoptim_mu_'+str(m)+'.fits'
         save_Zoptim(Zifft, fname)
+        
+        fname = SAVE2+'J_mu_'+str(m)
+        np.save(fname,J_Zoptim)
  
-       
+      
+fname = SAVE2+'SNR_sobolev'
+np.save(fname,err)
+
+
+t2 = time()
+
+
+print('******************************************')
+print('******* TOTAL COMPUTATION TIME : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
+
+
 plt.plot(mus,err)
 plt.axis('tight')
 plt.xlabel('\lambda (échelle log)') 
 plt.ylabel('SNR')
-t2 = time()
+plt.show()
 
 plt.imshow(Xbest)
-plt.title('Variation totale SNR = '+str(round(np.max(err),2))+'dB')  
+plt.title('Variation totale SNR = '+str(round(np.max(err),2))+'dB') 
 
-print('******************************************')
-print('******* TOTAL COMPUTATION TIME : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
 
 """----------------------------"""
 # for mu in mus:
@@ -181,7 +185,7 @@ print('******* TOTAL COMPUTATION TIME : '+str(np.round((t2-t1)/60))+'min '+str(n
     
 #     Jmu.append(np.linalg.norm(Yfft-np.dot(V,Zmu)*H)**2)
     
-#     Regmu.append(np.linalg.norm((D[0]+D[1])*np.reshape(Zmu,(Lacp,nr,nc))))
+#     Regmu.append(np.linalg.norm((D[0]+D[1])*np.reshape(Zmu,(Lacp,NR,NC))))
     
 """--------------------Postprocess & saving--------------------"""
 # save_Zoptim(Zifft, SAVE)
@@ -229,15 +233,16 @@ print('******* TOTAL COMPUTATION TIME : '+str(np.round((t2-t1)/60))+'min '+str(n
 # plt.imshow(Xestim[Band,:,:])
 # plt.title('Sobolev SNR = '+str(round(snr(Xtrue,Xestim[Band,:,]),2))+'dB')  
 
-Zmu = fits.getdata(SAVE2+'_full_4.641588833612778z_opti.fits')
-Xmu = recover_X(V, Zmu)
 
-plt.imshow(Xmu[Band,:,:])
-plt.plot(Xmu[Band,63,:])
+#Zmu = fits.getdata(SAVE2+'_full_4.641588833612778z_opti.fits')
+#Xmu = recover_X(V, Zmu)
 
-plt.plot(Xtrue[63,:], 'r',label = 'Référence') # plotting t, a separately 
-plt.plot(Xmu[Band,63,:], 'b',label = 'Sobolev') # plotting t, b separately 
-plt.legend(loc="upper right")
+#plt.imshow(Xmu[Band,:,:])
+#plt.plot(Xmu[Band,63,:])
+
+#plt.plot(Xtrue[63,:], 'r',label = 'Référence') # plotting t, a separately 
+#plt.plot(Xmu[Band,63,:], 'b',label = 'Sobolev') # plotting t, b separately 
+#plt.legend(loc="upper right")
 
 
-plt.plot()
+#plt.plot()

@@ -8,10 +8,12 @@ Created on Fri May 13 11:12:22 2022
 from time import time
 import tools
 import numpy as np
+import matplotlib.pyplot as plt
 
 # from Objfun import compute_symmpad_per_band
 from astropy.io import fits
 from CONSTANTS import *
+from simulate_HS_MS import reshape_psf
 
 
 import warnings
@@ -43,9 +45,9 @@ def get_spa_bandpsf_hs(band, sigma=0):
 """--------Post GD utilities--------"""
 def postprocess(z, lacp):
     
-    z = np.reshape(z, (lacp, nr, nc))
+    z = np.reshape(z, (lacp, NR, NC))
     z = np.fft.ifft2(z, norm='ortho')
-    z = np.real(tools._centered(z[:, :-2, :-2], (lacp, nr-2*fact_pad-2, nc-2*fact_pad-2)))
+    z = np.real(tools._centered(z[:, :-2, :-2], (lacp, NR-2*fact_pad-2, NC-2*fact_pad-2)))
     return z
 
 
@@ -67,7 +69,7 @@ def get_Xtrue(file_data,Band):
     M = fits.getdata(file_data+'M_1.fits').T
     A = fits.getdata(file_data+'A.fits')
     
-    A = A[:,:,Start:Start+NbcolMA]
+    A = A[:,:,START:START+NBCOL_X]
     
     n, p, q = A.shape
     return np.reshape(np.dot(M[Band], np.reshape(A, (n, p*q))), (p, q))
@@ -157,39 +159,84 @@ def process_PSF(VZ,sigma = 0):
     
     PSF = np.zeros((Lband,Lin,Col),dtype = complex)
     
-    Hreshaped = np.zeros((Lin,Col),dtype = complex)
+    #Hreshaped = np.zeros((Lin,Col),dtype = complex)
     
-    H = get_spa_bandpsf_hs(1, sigma)
+    #H = get_spa_bandpsf_hs(1, sigma)
     
-    L,C = H.shape
+    #L,C = H.shape
     
-    Hamming = np.tile(np.hamming(C),(Lin,1))
+    #Hamming = np.tile(np.hamming(C),(Lin,1))
     
     for k in range(Lband):
         
         H = get_spa_bandpsf_hs(k, sigma)
         
-        Hshift = (np.fft.fftshift(H))
-    
-        ind = np.unravel_index(np.argmax(Hshift, axis=None), Hshift.shape)
+        Hcrop = reshape_psf(H, VZ[0])
         
-        RLbnd = ind[0] - Lin//2
-        RUbnd = ind[0] + Lin//2
+        #Hshift = (np.fft.fftshift(H))
+    
+        #ind = np.unravel_index(np.argmax(Hshift, axis=None), Hshift.shape)
+        
+        #RLbnd = ind[0] - Lin//2
+        #RUbnd = ind[0] + Lin//2
         # CLbnd = ind[1] - C//2
         # CUbnd = ind[1] + C//2
-        Nshift = (Col - C)//2
+        #Nshift = (Col - C)//2
         
-        Hreshaped[:,Nshift:(Nshift+C)] = Hshift[RLbnd:RUbnd,:] * Hamming
+        #Hreshaped[:,Nshift:(Nshift+C)] = Hshift[RLbnd:RUbnd,:] * Hamming
 
-        PSF[k] = np.fft.fftshift(Hreshaped)
+        PSF[k] = Hcrop
         
-        Hreshaped *= 0
+        if k % 500 : 
+            plt.imshow(np.abs(np.fft.fftshift(Hcrop)))
+            plt.show()
         
-        print('k = '+ str(k))
+        #print('k = '+ str(k))
     
     print('\n****** Processing PSF Done ******\n')
     
     return PSF
+# def process_PSF(VZ,sigma = 0):
+    
+#     print('\n****** Processing PSF ******\n')
+    
+#     Lband,Lin,Col = VZ.shape
+    
+#     PSF = np.zeros((Lband,Lin,Col),dtype = complex)
+    
+#     Hreshaped = np.zeros((Lin,Col),dtype = complex)
+    
+#     H = get_spa_bandpsf_hs(1, sigma)
+    
+#     L,C = H.shape
+    
+#     Hamming = np.tile(np.hamming(C),(Lin,1))
+    
+#     for k in range(Lband):
+        
+#         H = get_spa_bandpsf_hs(k, sigma)
+        
+#         Hshift = (np.fft.fftshift(H))
+    
+#         ind = np.unravel_index(np.argmax(Hshift, axis=None), Hshift.shape)
+        
+#         RLbnd = ind[0] - Lin//2
+#         RUbnd = ind[0] + Lin//2
+#         # CLbnd = ind[1] - C//2
+#         # CUbnd = ind[1] + C//2
+#         Nshift = (Col - C)//2
+        
+#         Hreshaped[:,Nshift:(Nshift+C)] = Hshift[RLbnd:RUbnd,:] * Hamming
+
+#         PSF[k] = np.fft.fftshift(Hreshaped)
+        
+#         Hreshaped *= 0
+        
+#         print('k = '+ str(k))
+    
+#     print('\n****** Processing PSF Done ******\n')
+    
+#     return PSF
 
 def precompute_VtYH(V,H,Y):
     
@@ -305,10 +352,10 @@ def CritJ(Y,V,Z,H,D,mu,sigma = 0):
     # VZH = np.reshape(VZH,(Y.shape[0],Y.shape[1]))
     
     
-    # J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.linalg.norm(D[0]*np.reshape(Z,(Lacp,nr,nc))+D[1]*np.reshape(Z,(Lacp,nr,nc)))**2
+    # J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.linalg.norm(D[0]*np.reshape(Z,(Lacp,NR,NC))+D[1]*np.reshape(Z,(Lacp,NR,NC)))**2
     J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.sum((D[0]*np.reshape(Z,(Lacp,NR,NC)))**2+(D[1]*np.reshape(Z,(Lacp,NR,NC)))**2)
     """mettre Dx Dy en facteur commun"""
-    # J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.linalg.norm((D[0]+D[1])*np.reshape(Z,(Lacp,nr,nc)))
+    # J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.linalg.norm((D[0]+D[1])*np.reshape(Z,(Lacp,NR,NC)))
 
     # print('\n****** Eval CritJ(Z) Done ******\n')
     return J
@@ -328,16 +375,16 @@ def GradJ(Zfft,Lacp,term2,precomp_term,D,mu):
     #term1 = compute_VtVZH2(repZ, precomp_term)
     """Je peux eviter de faire repZ en faisant Z = Lsub x 1 x pm .* lsub x pm"""
     """nr nc prcq je sais que Zfft est en lin+padding col+padding"""
-    term1 = np.sum(np.reshape(Zfft,(Lacp,1,nr*nc))*precomp_term,0)
+    term1 = np.sum(np.reshape(Zfft,(Lacp,1,NR*NC))*precomp_term,0)
     
-    Zfft = np.reshape(Zfft,(Lacp,nr,nc))
+    Zfft = np.reshape(Zfft,(Lacp,NR,NC))
     
-    return (term1 - term2 + 2 * mu * np.reshape(np.conj(D[0]) * Zfft * D[0] + np.conj(D[1]) * Zfft * D[1],(Lacp,nr*nc)))
+    return (term1 - term2 + 2 * mu * np.reshape(np.conj(D[0]) * Zfft * D[0] + np.conj(D[1]) * Zfft * D[1],(Lacp,NR*NC)))
 
     """ Essayer A*A = |A|^2"""
-    # return (term1 - term2 + 2 * mu * np.reshape(Zfft * np.abs(D[0])**2 + Zfft * np.abs(D[1])**2,(Lacp,nr*nc)))
+    # return (term1 - term2 + 2 * mu * np.reshape(Zfft * np.abs(D[0])**2 + Zfft * np.abs(D[1])**2,(Lacp,NR*NC)))
     
-    # return (term1 - term2 + 2 * mu * np.reshape(Zfft * (np.conj(D[0])*D[0]+np.conj(D[1])*D[1]),(Lacp,nr*nc)))
+    # return (term1 - term2 + 2 * mu * np.reshape(Zfft * (np.conj(D[0])*D[0]+np.conj(D[1])*D[1]),(Lacp,NR*NC)))
 
 def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     print('\n***** GRADIENT DESCENT ALGORITHM *****\n')
@@ -347,9 +394,9 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     t1 = time()
     
-    Kmax = 400          #Nbr max d'itérations
+    NB_ITER = 10         #Nbr max d'itérations
     EPS_J = 1e-5        #Seuil de variation du critere
-    Step = 1e-6         #Pas d'incrémentation 
+    STEP = 1e-6         #Pas d'incrémentation 
     
     k = 0
     
@@ -365,7 +412,7 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     print(str(k)+' -- J(Z) = '+str(J_Zk[-1]))
     
-    while (k < Kmax) and np.abs((J_ZkOld - J_Zk[-1])/J_ZkOld)> EPS_J: #while k<kmax and (norm(Zold-Z) > EPS_Z or norm(J_Zold-J_Z) > EPS_J)
+    while (k < NB_ITER) and np.abs((J_ZkOld - J_Zk[-1])/J_ZkOld)> EPS_J: #while k<NB_ITER and (norm(Zold-Z) > EPS_Z or norm(J_Zold-J_Z) > EPS_J)
         
         tstart = time()
         
@@ -373,7 +420,7 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
         
         J_ZkOld = J_Zk[-1]
 
-        Zk =  Zk + Step * -GradJ_Zk
+        Zk =  Zk + STEP * -GradJ_Zk
         
         J_Zk.append(CritJ(Y,V,Zk,H,D,mu,sigma = 0))
         
@@ -384,9 +431,9 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
         print('Iteration Computation time : '+str(np.round((tend-tstart)/60))+'min '+str(np.round((tend-tstart)%60))+'s.')
     
     t2 = time()
-    print('Cg Computation time : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
+    print('GD Computation time : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
     print('\n***** GRADIENT DESCENT Done *****\n')
         
-    return Zk,J_Zk,Step
+    return Zk,J_Zk,STEP
     
     
