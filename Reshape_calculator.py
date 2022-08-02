@@ -51,262 +51,6 @@ def snr(x, y):
 
     return 20 * np.log10(np.linalg.norm(x) / np.linalg.norm(x - y))
 
-# (2*fact_pad+2) % d = 0; (fact_pad//d + 1) % 2 = 0
-# Number = 147456
-# nr = 90
-# nc = 1
-# d = 3
-
-# Ndim = 500
-# Maxpad = 41
-# fact_pad = 29
-
-# Divider1 = []
-# Divider2 = []
-
-# vect = np.array([0],dtype = 'float')
-# vect2 = np.array([0],dtype = 'float')
-
-
-# for nc in range(Ndim):
-    
-#     for k in range(Maxpad):
-        
-#         if( (nc % d == 0) and ((2*k+2) % d ==0) and ((k//d + 1) % 2 == 0)):
-            
-#             Divider1.append(nc)
-#             Divider2.append(k)
-            
-            
-# for i in range(Ncol):
-    
-#     #if( ((2*i+2) % d == 0) and ((i//d + 1) % 2 ==0 )):
-#     #    print(i)
-#     #Diff = Ncol - (i+1)
-    
-#     if( Diff %(2) == 0):
-#         Divider.append(i+1)
-#     vect = np.append(vect,i+1)
-    
-    
-    
-# vect = Eigvalue
-    
-# vect = vect ** 2
-    
-# sum_2 = sum(vect)
-
-#vect = vect / sum_2
-    
-#cumul_var = np.cumsum(vect)
-
-
-
-
-# def tester(a,b):
-    
-#     L = 3
-#     Y = np.zeros((L,a,b))
-#     W = np.zeros((L,2*a,2*b))
-    
-#     for k in range (L):
-#         Y[k] = np.random.rand(a,b)
-#         W[k] = np.random.rand(2*a,2*b)
-        
-#     return W,Y
-
-
-#Q,QQ = tester(3,2)
-
-#L,M,N = QQ.shape
-
-# def compute_symmpad(X, npix):
-#     """
-#     Compute a symmetric padding of npix and add 2 rows and 2 columns of zero padding (for aliasing)
-#     """
-#     M = X.shape[0]
-#     N = X.shape[1]
-#     symm_pad = np.zeros((M+2*npix, N+2*npix), dtype='float64')
-#     symm_pad[npix:M+npix, npix:N+npix] = X
-
-#     symm_pad[npix:M+npix, 0:npix] = X[:, npix-1::-1]
-#     symm_pad[0:npix, npix:N+npix] = X[npix-1::-1]
-#     symm_pad[M+npix:, npix:N+npix] = X[M-1:M-1-npix:-1]
-#     symm_pad[npix:M+npix, N+npix:] = X[:, N-1:N-1-npix:-1]
-
-#     symm_pad[0:npix, 0:npix] = symm_pad[2*npix-1:npix-1:-1, 0:npix]
-#     symm_pad[M+npix:M+2*npix, 0:npix] = symm_pad[M+npix-1:M-1:-1, 0:npix]
-#     symm_pad[0:npix, N+npix:N+2*npix] = symm_pad[2*npix-1:npix-1:-1, N+npix:N+2*npix]
-#     symm_pad[M+npix:M+2*npix, N+npix:N+2*npix] = symm_pad[M+npix-1:M-1:-1, N+npix:N+2*npix]
-
-#     symm_pad_ = np.zeros((M+2*npix+2, N+2*npix+2), dtype='float64')
-#     symm_pad_[:M+2*npix, :N+2*npix] = symm_pad
-#     return symm_pad_  
-
-# def compute_symmpad_3d(X, npix):
-#     L, M, N = X.shape
-#     Y = np.zeros((L, M+2*npix+2, N+2*npix+2))
-#     for i in range(L):
-#         Y[i] = compute_symmpad(X[i], npix)
-#     return Y
-     
-# matrice = np.random.randint(1, 10, size=(1,7), dtype=int)
-
-
-# fact_pad = 3
-
-# symmetric_pad = compute_symmpad_3d(matrice, fact_pad)   
-
-# Lin = 150
-# Col = 414
-# sigma = 0
-# lh = 4974
-
-
-# Band = 4900
-
-# H = get_spa_bandpsf_hs(Band, sigma=0)
-
-# Hifft = np.fft.ifft2(H)
-
-# plt.imshow(np.log(np.abs(Hifft))) #donne 4 coins verts et image blue (np.abs) et image blanche ave (np.real)
-# plt.imshow(np.log(np.abs(np.fft.fftshift(Hifft))))  marche aussi 
-# plt.imshow(np.fft.fftshift(np.log(np.real(Hifft)))) marche aussi mais fond blanc
-
-
-
-
-# def preprocess_D(sh):
-#     m, n = sh
-#     Dx = np.zeros(sh)
-#     Dy = np.zeros(sh)
-
-#     Dx[0, 0] = 1
-#     Dx[0, 1] = -1
-#     Dy[0, 0] = 1
-#     Dy[1, 0] = -1
-
-#     Dx = np.fft.fft2(Dx)
-#     Dy = np.fft.fft2(Dy)
-
-#     return (Dx, Dy)
-
-
-# sh = nr,nc
-
-# D = preprocess_D(sh)
-
-
-# flag = 1
-# for i in range(lh):
-#         # Compute the 3D scene at a wavelength 
-#         # Get spatial PSF at that band
-#         k = i *50
-#         H = get_spa_bandpsf_hs(k, sigma)
-#         M = get_spa_bandpsf_hs_M(k, sigma)
-        
-#         #Initialize arrays
-#         if( flag == 1):
-#             Hreshaped = np.zeros((Lin,Col),dtype = complex)
-            
-#             #lin,col = X.shape
-#             #Y = np.zeros((lh,lin,col))
-            
-#             #Generate Hamming window Nb_coeff = Xcol repeat Xlin 
-#             Hamming = np.tile(np.hamming(384),(150,1))
-#             flag = 0
-#         '''---------------------------------------'''
-#         #Get the indexes of the maximal element of |H|
-#         Hshift = (np.fft.fftshift(H))             #A Supprimer
-#         Mshift = (np.fft.fftshift(M))  
-#         ind = np.unravel_index(np.argmax(Hshift, axis=None), Hshift.shape)
-        
-#         #Set the lower and upper bounds of the area to be extracted 
-#         RLbnd = ind[0] - NbpixR//2
-#         RUbnd = ind[0] + NbpixR//2
-#         CLbnd = ind[1] - NbpixC//2
-#         CUbnd = ind[1] + NbpixC//2
-        
-#         #Reshape PSF
-        
-#         Hreshaped[:,Nshift:(Nshift+NbpixC)] = Hshift[RLbnd:RUbnd,:] #Hreshape ==> 174x984 Hshift 174x384
-#         Hreshaped[:,Nshift:(Nshift+NbpixC)] *= Hamming
-#         Hreshaped = np.fft.fftshift(Hreshaped)
-        
-#         plt.imshow(np.abs(Hshift))
-#         plt.show()
-#         plt.imshow(np.abs(Mshift))
-#         #Convolve with PSF without subsample
-#         plt.show()
-#         Hreshaped *= 0
-        
-#         print('i = '+ str(i))  
-
-
-# V = fits.getdata(V_acp)
-# Z = fits.getdata(Z_acp)
-
-# Lband,Lin,Col = Z.shape
-# Z = np.reshape(Z,(Lband,Lin*Col))
-# t1 = time()
-# VZ = np.dot(V,Z)
-# t2 = time()
-# print('Cg Computation time : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
-
-
-# Band = V.shape[1]
-# Stock = Hreshaped = np.zeros(VZ.shape,dtype = float)
-# t1 = time()
-# for k in range(Band):
-    
-#     Stock += np.dot(V[:,k],Z[k,:]) 
-    
-# t2 = time()
-
-# print('Cg Computation time : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
-
-
-"""boucle for plus lente"""
-# Z1 = np.reshape(Z,(Lacp,Z.shape[1]*Z.shape[2]))
-# VZ = np.dot(V,Z1)
-
-# X = np.zeros((VZ.shape[0],VZ.shape[1]),dtype=float)
-
-# X = np.outer(V[:,0],Z1[0,:])
-
-# for k in range(V.shape[1]-2):
-    
-#     X += np.outer(V[:,k+1],Z1[k+1,:])
-
-
-# plt.plot(np.arange(1,51),Eigvalue[0:50])
-# plt.yscale('log')
-# plt.title('Valeurs propres')
-# plt.xlabel('Indice de la composante principale')
-# plt.savefig(SAVE+'eigenvalues_pca_urgent_50.png')
-
-
-
-# plt.plot(np.arange(1,51),cumul_var[:50])
-# plt.yscale('log')
-# plt.title('Pourcentage inertie expliquée')
-# plt.xlabel('Dimension du sous espace')
-# # plt.savefig(SAVE+'Cumulative_variance_pca_urgent2.png')
-# # plt.show()    
-
-# denois_img = denoise_tv_chambolle(Yh, weight = 1,n_iter_max= 1000,multichannel= True)
-    
-# eps = 1e-6
-
-
-# evalGradJ = GradJ(Zfft2+eps,Lacp,T2,T1,D,mu)
-# print('Eval GradJ(Z+eps) = ',evalGradJ)
-
-# evalGradJ2 = (CritJ(Yfft,V,Zfft2,H,D,mu,sigma = 0) - CritJ(Yfft,V,Zfft,H,D,mu,sigma = 0)) / eps
-
-# print('Eval GradJ(Z+eps) = ',evalGradJ2)
-
-
 #####################Version qui fonctionne####################
 
 # Hreshaped = np.zeros((90,354),dtype = complex)
@@ -642,10 +386,10 @@ Xbest = np.zeros(Xinit.shape)
 
 for k in np.arange(0,len(lambda_list)):
     
-    # Xestim = Yh[Band,:,:]
+    Xestim = Yh[Band,:,:]
     # Xestim = Yh[Band,:,:] * np.random.rand(Lin,Col) 
     # Xestim = np.zeros(Xinit.shape)
-    Xestim = np.random.rand(Lin,Col) 
+    #Xestim = np.random.rand(Lin,Col) 
     
     Xestim_prev = Xestim*100
     
@@ -676,6 +420,32 @@ for k in np.arange(0,len(lambda_list)):
     
     if err[k] > snr(Xinit,Xbest):
         Xbest = Xestim
+        
+plt.plot(E)
+plt.axis('tight')
+plt.xlabel('Iteration #')
+plt.ylabel('Energie')
+
+plt.imshow(Xinit);plt.colorbar()
+plt.title('Référence')
+
+plt.imshow(Yblur);plt.colorbar()
+plt.title('Observée')
+
+# plt.imshow(Yh[Band,:,:])
+# plt.title('Observée')
+
+plt.imshow(Xestim);plt.colorbar()
+plt.title('Deconvolution - Variation totale')
+
+
+plt.plot(lambda_list,err)
+plt.axis('tight')
+plt.xlabel('\lambda (échelle log)') 
+plt.ylabel('SNR')
+
+plt.imshow(Xbest);plt.colorbar()
+plt.title('Variation totale SNR = '+str(round(np.max(err),2))+'dB')        
 """-------------Version fonctionnelle---------"""
 # Band = 3541
 
@@ -768,17 +538,5 @@ for k in np.arange(0,len(lambda_list)):
 #     if err[k] > snr(Xinit,Xbest):
 #         Xbest = Xestim
 
-
-# def estimated_autocorrelation(x):
-#     """
-#     http://stackoverflow.com/q/14297012/190597
-#     http://en.wikipedia.org/wiki/Autocorrelation#Estimation
-#     """
-#     n = len(x)
-#     variance = x.var()
-#     x = x-x.mean()
-#     r = np.correlate(x, x, mode = 'full')[-n:]
-#     assert np.allclose(r, np.array([(x[:n-k]*x[-(n-k):]).sum() for k in range(n)]))
-#     result = r/(variance*(np.arange(n, 0, -1)))
-#     return result
+"""--------------------------------------------"""
 
