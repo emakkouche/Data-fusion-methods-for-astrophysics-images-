@@ -51,7 +51,7 @@ warnings.filterwarnings('ignore')
 # plt.plot(cumul_var)
 # plt.title('Cumulative Explained Variance -- PCA')
 # plt.xlabel('Dimensions du sous-espace')
-"""--------------------Total Variance PCA--------------------"""
+"""--------------------Total Variance PCA----------------------"""
 # Yh = fits.getdata(HS_IM)
 Lacp = 10
 
