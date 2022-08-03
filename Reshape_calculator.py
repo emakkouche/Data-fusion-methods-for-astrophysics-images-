@@ -363,38 +363,42 @@ Yh[Band,:,:] = Yblur
 # PSF[k] = np.fft.fftshift(Hreshaped)
 
 """----------"""
-Phi = lambda x,h: np.real(np.fft.ifft2(np.fft.fft2(x,norm = 'ortho') * np.fft.fft2(h,norm = 'ortho'),norm = 'ortho'))
+#Phi = lambda x,h: np.real(np.fft.ifft2(np.fft.fft2(x,norm = 'ortho') * np.fft.fft2(h,norm = 'ortho'),norm = 'ortho'))
+Phi = lambda x,h: np.real(np.fft.ifft2(np.fft.fft2(x) * np.fft.fft2(h)))
 
 repeat3 = lambda x,k: resize( np.repeat( x, k, axis=1), [90, 354, k])
 
 """-------"""
 epsilon = 0.2*1e-1
-# lambda_list = np.linspace(0,2,20)
-lambda_list = np.log(np.linspace(1,3,20))
+lambda_list = np.linspace(0,2,20)
+
+
 
 tau = 1.9 / ( 1 + max(lambda_list) * 8 / epsilon)
 
 niter = 4000
 
 E = np.zeros((niter,1))
+min_phi= np.zeros((niter,1))
+max_phi= np.zeros((niter,1))
 
 err = np.zeros((len(lambda_list),1))
 
 # Xbest = Yh[Band,:,:]
-# Xbest = Yblur
+#Xbest = Yblur
 Xbest = np.zeros(Xinit.shape)
 
 for k in np.arange(0,len(lambda_list)):
     
-    Xestim = Yh[Band,:,:]
+    #Xestim = Yh[Band,:,:]
     # Xestim = Yh[Band,:,:] * np.random.rand(Lin,Col) 
-    # Xestim = np.zeros(Xinit.shape)
+    Xestim = np.zeros(Xinit.shape)
     #Xestim = np.random.rand(Lin,Col) 
     
-    Xestim_prev = Xestim*100
+    Xestim_prev = Xestim+1
     
     i = 0
-    
+     
     Lambda = lambda_list[k]
     
     while i < niter and np.linalg.norm(Xestim - Xestim_prev)/np.linalg.norm(Xestim_prev) > 1e-5 :
@@ -405,8 +409,13 @@ for k in np.arange(0,len(lambda_list)):
         # d = np.sqrt(epsilon**2 + np.linalg.norm(Gr))
         G = -div(Gr[:,:,0] / d,Gr[:,:,1] / d )
         
+        tempo = Phi(Xestim,Hreshape)
         # step
-        e = Phi(Xestim,Hreshape) - Yh[Band,:,:]
+        
+        max_phi[i] = np.max(tempo)
+        min_phi[i] = np.min(tempo)
+        
+        e = tempo - Yh[Band,:,:]
     
         Xestim_prev = Xestim
     
@@ -415,6 +424,9 @@ for k in np.arange(0,len(lambda_list)):
         E[i] = 1/2*np.linalg.norm(e.flatten())**2 + Lambda*np.sum(d.flatten())
     
         i = i+1
+        
+    plt.plot(E)
+    plt.show()    
     
     err[k] = snr(Xinit,Xestim)
     
@@ -437,7 +449,6 @@ plt.title('Observée')
 
 plt.imshow(Xestim);plt.colorbar()
 plt.title('Deconvolution - Variation totale')
-
 
 plt.plot(lambda_list,err)
 plt.axis('tight')

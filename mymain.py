@@ -51,7 +51,7 @@ warnings.filterwarnings('ignore')
 # plt.plot(cumul_var)
 # plt.title('Cumulative Explained Variance -- PCA')
 # plt.xlabel('Dimensions du sous-espace')
-"""--------------------Total Variance PCA----------------------"""
+"""--------------------Total Variance PCA--------------------"""
 # Yh = fits.getdata(HS_IM)
 Lacp = 10
 
@@ -149,7 +149,7 @@ for mu in mus:
         fname = SAVE2+'Zoptim_mu_'+str(m)+'.fits'
         save_Zoptim(Zifft, fname)
         
-        fname = SAVE2+'J_mu_'+str(m)
+        fname = SAVE2+'Jmu_'+str(m)
         np.save(fname,J_Zoptim)
  
       
