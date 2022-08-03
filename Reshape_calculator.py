@@ -370,9 +370,8 @@ repeat3 = lambda x,k: resize( np.repeat( x, k, axis=1), [90, 354, k])
 
 """-------"""
 epsilon = 0.2*1e-1
-lambda_list = np.linspace(0,2,20)
-
-
+# lambda_list = np.linspace(0,2,20)
+lambda_list = np.linspace(0,3,10)
 
 tau = 1.9 / ( 1 + max(lambda_list) * 8 / epsilon)
 
