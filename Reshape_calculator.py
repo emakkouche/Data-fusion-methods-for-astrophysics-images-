@@ -14,6 +14,7 @@ from time import time
 from grad import grad
 from div import div
 from myproduce_HS_MS import add_noise_nocorr
+from tempo import save_Zoptim
 
 import matplotlib.pyplot as plt
 from astropy.io import fits
@@ -423,14 +424,21 @@ for k in np.arange(0,len(lambda_list)):
         E[i] = 1/2*np.linalg.norm(e.flatten())**2 + Lambda*np.sum(d.flatten())
     
         i = i+1
-        
-    plt.plot(E)
-    plt.show()    
     
     err[k] = snr(Xinit,Xestim)
     
     if err[k] > snr(Xinit,Xbest):
         Xbest = Xestim
+
+    fname = SAVE2+'XoptimTV_mu_'+str(k)+'.fits'
+    save_Zoptim(Xestim, fname)
+        
+    fname = SAVE2+'JTV_mu_'+str(k)
+    np.save(fname,E)
+
+
+fname = SAVE2+'SNR_TV'
+np.save(fname,err)
         
 plt.plot(E)
 plt.axis('tight')
