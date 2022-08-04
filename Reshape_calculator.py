@@ -370,7 +370,7 @@ Phi = lambda x,h: np.real(np.fft.ifft2(np.fft.fft2(x) * np.fft.fft2(h)))
 repeat3 = lambda x,k: resize( np.repeat( x, k, axis=1), [90, 354, k])
 
 """-------"""
-epsilon = 0.2*1e-1
+epsilon = 0.2
 # lambda_list = np.linspace(0,2,20)
 lambda_list = np.linspace(0,3,10)
 
