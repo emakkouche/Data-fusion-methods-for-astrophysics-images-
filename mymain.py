@@ -143,22 +143,19 @@ for mu in mus:
         
         if err[m] > snr(Xtrue,Xbest):
             Xbest = Xestim[Band,:,:]
-     
-        m = m+1
         
         fname = SAVE2+'Zoptim_mu_'+str(m)+'.fits'
         save_Zoptim(Zifft, fname)
         
         fname = SAVE2+'Jmu_'+str(m)
         np.save(fname,J_Zoptim)
- 
+        
+        m = m+1
       
 fname = SAVE2+'SNR_sobolev'
 np.save(fname,err)
 
-
 t2 = time()
-
 
 print('******************************************')
 print('******* TOTAL COMPUTATION TIME : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')

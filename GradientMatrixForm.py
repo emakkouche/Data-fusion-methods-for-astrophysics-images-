@@ -7,6 +7,7 @@ Created on Mon Aug 22 09:41:13 2022
 """
 
 """IL FAUT QUE Z SOIT Lacp Lin Col"""
+"""Adjoint vérifié avec produit scalaire""""
 
 Dv = Z[:,1:,:] - Z[:,:-1,:]
 Dh = Z[:,:,1:] - Z[:,:,:-1]
@@ -34,3 +35,5 @@ col_pad = np.reshape(Z[:,:,-2],(B,Lin,1))
 
 DvT = np.concatenate((DvT,lin_pad),axis = 1)
 DhT = np.concatenate((DhT,col_pad),axis = 2)
+
+
