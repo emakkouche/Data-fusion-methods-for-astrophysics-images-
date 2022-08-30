@@ -187,7 +187,7 @@ def process_PSF(VZ,sigma = 0):
 
         PSF[k] = Hcrop
         
-        if k % 500 : 
+        if not(k % 500) : 
             plt.imshow(np.abs(np.fft.fftshift(Hcrop)))
             plt.show()
         
@@ -394,7 +394,7 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     t1 = time()
     
-    NB_ITER = 1000         #Nbr max d'itérations
+    NB_ITER = 1         #Nbr max d'itérations
     EPS_J = 1e-5        #Seuil de variation du critere
     STEP = 1e-6         #Pas d'incrémentation 
     

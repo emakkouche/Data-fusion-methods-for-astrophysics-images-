@@ -76,6 +76,7 @@ Lacp = 10
 Yh = fits.getdata(HS_IM)
 V = fits.getdata(V_acp)
 Z = fits.getdata(Z_acp)
+mean = fits.getdata(DATA+'mean.fits')
 
 #Xback,error = mycheck_pca.check_pca(V, Z, mean, Yh)
 
@@ -113,7 +114,7 @@ Lband,Lin,Col = Zfft.shape
 Zfft = np.reshape(Zfft,(Lband,Lin*Col))
 
 """--------------------Gradient Descent--------------------"""
-mus = np.log(np.linspace(1,3,10))
+mus = 10**np.linspace(-1, 3, 10)
 
 err = np.zeros((len(mus),1))
 
