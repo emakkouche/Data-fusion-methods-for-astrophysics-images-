@@ -187,11 +187,6 @@ def process_PSF(VZ,sigma = 0):
 
         PSF[k] = Hcrop
         
-        if not(k % 500) : 
-            plt.imshow(np.abs(np.fft.fftshift(Hcrop)))
-            plt.show()
-        
-        #print('k = '+ str(k))
     
     print('\n****** Processing PSF Done ******\n')
     
@@ -293,6 +288,8 @@ def preprocessing(Yh,V,Z,Lacp):
     #calculer les termes en rouge et jaune
     print('\n****** Preprocessing ******\n')
     
+    t1 = time()
+    
     Yfft = np.fft.fft2(tools.compute_symmpad_3d(Yh,fact_pad),axes=(1, 2),norm='ortho')
     
     Zfft = np.fft.fft2(tools.compute_symmpad_3d(Z,fact_pad),axes=(1, 2),norm='ortho')
@@ -307,14 +304,19 @@ def preprocessing(Yh,V,Z,Lacp):
     
     H = process_PSF(Yfft)
     
+    fname = SAVE2+'M_fft_PSF_croped'
+    np.save(fname,H)
+    
     VtDvH2,maxH2 = precompute_VtDvH2(V,Lacp,H)    #precomputed_term
     
     VtYH = precompute_VtYH(V,H,Yfft)        #term2
     
     D = preprocess_D(NR,NC)
     
+    t2 = time()
+    
     print('\n****** Preprocessing Done ******\n')
-    return Yfft,Zfft,H,VtDvH2,VtYH,maxH2,D
+    return Yfft,Zfft,H,VtDvH2,VtYH,maxH2,D,np.round((t2-t1))
 
 """-------Repliquer les lignes de Z----- """
 def replicate_Z(Lacp,Zfft):
@@ -351,14 +353,20 @@ def CritJ(Y,V,Z,H,D,mu,sigma = 0):
     
     # VZH = np.reshape(VZH,(Y.shape[0],Y.shape[1]))
     
+    Ztemp = Z.copy()
     
-    # J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.linalg.norm(D[0]*np.reshape(Z,(Lacp,NR,NC))+D[1]*np.reshape(Z,(Lacp,NR,NC)))**2
-    J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.sum((D[0]*np.reshape(Z,(Lacp,NR,NC)))**2+(D[1]*np.reshape(Z,(Lacp,NR,NC)))**2)
+    Ztemp = np.reshape(Ztemp,(Lacp,NR,NC))
+    
+    residu = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2)
+    
+    regul = np.sum((D[0]*Ztemp)**2+(D[1]*Ztemp)**2)
+    
+    #J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.sum((D[0]*np.reshape(Z,(Lacp,NR,NC)))**2+(D[1]*np.reshape(Z,(Lacp,NR,NC)))**2)
     """mettre Dx Dy en facteur commun"""
     # J = 0.5 * (np.linalg.norm(Y-np.dot(V,Z)*H)**2) + mu * np.linalg.norm((D[0]+D[1])*np.reshape(Z,(Lacp,NR,NC)))
 
     # print('\n****** Eval CritJ(Z) Done ******\n')
-    return J
+    return (residu + mu * regul),residu,regul
 
 
 """-------Evaluer le gradient au point Z(f)---------"""
@@ -394,7 +402,9 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     t1 = time()
     
-    NB_ITER = 1         #Nbr max d'itérations
+    time_iter = []
+    
+    NB_ITER = 200         #Nbr max d'itérations
     EPS_J = 1e-5        #Seuil de variation du critere
     STEP = 1e-6         #Pas d'incrémentation 
     
@@ -402,13 +412,17 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     Zk = Z.copy()
     
-    J_Zk = [CritJ(Y,V,Zk,H,D,mu,sigma = 0)]
+    J,residu,regul = CritJ(Y,V,Zk,H,D,mu,sigma = 0)
+    
+    J_Zk = [J]
     
     GradJ_Zk = GradJ(Zk,Lacp,term2,precomp_term,D,mu)
     
     Zk_Old = 100 * (Zk)
     
-    J_ZkOld = CritJ(Y,V,Zk_Old,H,D,mu,sigma = 0)
+    J,residu,regul = CritJ(Y,V,Zk_Old,H,D,mu,sigma = 0)
+    
+    J_ZkOld = J
     
     print(str(k)+' -- J(Z) = '+str(J_Zk[-1]))
     
@@ -422,18 +436,29 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
 
         Zk =  Zk + STEP * -GradJ_Zk
         
-        J_Zk.append(CritJ(Y,V,Zk,H,D,mu,sigma = 0))
+        J,residu,regul = CritJ(Y,V,Zk,H,D,mu,sigma = 0)
+        
+        J_Zk.append(J)
         
         GradJ_Zk = GradJ(Zk,Lacp,term2,precomp_term,D,mu)
         
         tend = time()
+        
+        time_iter.append(np.round((tend-tstart)))
         print(str(k)+' -- J(Z) = '+str(J_Zk[-1]))
         print('Iteration Computation time : '+str(np.round((tend-tstart)/60))+'min '+str(np.round((tend-tstart)%60))+'s.')
     
+
     t2 = time()
     print('GD Computation time : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
     print('\n***** GRADIENT DESCENT Done *****\n')
+    
+    fname = SAVE2+'residu_mu_'+str((mu))
+    np.save(fname,residu)
+
+    fname = SAVE2+'regul_mu_'+str((mu))
+    np.save(fname,regul)
         
-    return Zk,J_Zk,STEP
+    return Zk,J_Zk,STEP,time_iter,np.round((t2-t1))
     
     

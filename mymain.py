@@ -91,6 +91,8 @@ mean = fits.getdata(DATA+'mean.fits')
 Jmu = []
 Regmu = []
 J2mu = []
+time_iter = []
+time_all = []
 #Time
 t1 = time()
 
@@ -100,10 +102,10 @@ t1 = time()
 #Z = fits.getdata(Z_acp)
 
 B,L,C = Z.shape
-Z = np.random.rand(B,L,C)
+Z = np.random.uniform(np.min(Z),np.max(Z),(Z.shape))
 
 """--------------------Preprocessing--------------------"""
-Yfft,Zfft,H,T1,T2,maxH2,D = preprocessing(Yh,V,Z,Lacp)
+Yfft,Zfft,H,T1,T2,maxH2,D,preprocess_time = preprocessing(Yh,V,Z,Lacp)
 
 Lband,Lin,Col = Yfft.shape
 Yfft = np.reshape(Yfft,(Lband,Lin*Col))
@@ -128,7 +130,7 @@ for mu in mus:
     
         print('----------------- MU '+str(mu)+' -----------------')
 
-        Zoptim,J_Zoptim,step = GD(Yfft,V,Zfft,H,Lacp,T2,T1,D,mu,maxH2)
+        Zoptim,J_Zoptim,step,time_mu,time_opt = GD(Yfft,V,Zfft,H,Lacp,T2,T1,D,mu,maxH2)
         
         # Jmu.append(np.linalg.norm(Yfft-np.dot(V,Zoptim)*H)**2)
         # J2mu.append(J_Zoptim)
@@ -152,7 +154,10 @@ for mu in mus:
         np.save(fname,J_Zoptim)
         
         m = m+1
-      
+        
+        time_iter.append(time_mu)
+        time_all.append(time_opt)
+        
 fname = SAVE2+'SNR_sobolev'
 np.save(fname,err)
 
@@ -160,6 +165,18 @@ t2 = time()
 
 print('******************************************')
 print('******* TOTAL COMPUTATION TIME : '+str(np.round((t2-t1)/60))+'min '+str(np.round((t2-t1)%60))+'s.')
+
+fname = SAVE2+'time_per_it'
+np.save(fname,np.mean(time_iter))
+
+fname = SAVE2+'time_optim_gradient'
+np.save(fname,time_all)
+
+fname = SAVE2+'time_preprocess'
+np.save(fname,preprocess_time)
+
+fname = SAVE2+'time_precalc_and_gradient'
+np.save(fname,np.round((t2-t1)))
 
 
 plt.plot(mus,err)
