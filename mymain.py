@@ -150,6 +150,9 @@ for mu in mus:
         fname = SAVE2+'Zoptim_mu_'+str(m)+'.fits'
         save_Zoptim(Zifft, fname)
         
+        fname = SAVE2+'Zoptim_mu_'+str(m)
+        np.save(fname,Zifft)
+        
         fname = SAVE2+'Jmu_'+str(m)
         np.save(fname,J_Zoptim)
         

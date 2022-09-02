@@ -15,25 +15,34 @@ def plot_band_figures(X,Yh,VZ,band,line):
     plt.imshow(X[band,:,:]);plt.colorbar()
     plt.savefig(SAVE_IMG+'VZ_true.eps', format='eps')
     plt.show()
+    
     plt.imshow(VZ[band,:,:]);plt.colorbar()
-    plt.show()
     plt.savefig(SAVE_IMG+'VZ_recover.eps', format='eps')
+    plt.show()
+    
     plt.imshow(Yh[band,:,:]);plt.colorbar()
-    plt.show()
     plt.savefig(SAVE_IMG+'Yh.eps', format='eps')
+    plt.show()
+    
     plt.plot(X[band,line,:])
-    plt.show()
     plt.savefig(SAVE_IMG+'VZ_true_horiz_section.eps', format='eps')
-    plt.plot(VZ[band,line,:])
     plt.show()
+    
+    plt.plot(VZ[band,line,:])
     plt.savefig(SAVE_IMG+'VZ_recover_horiz_section.eps', format='eps')
+    plt.show()
+    
     plt.plot(Yh[band,line,:])
     plt.savefig(SAVE_IMG+'Yh_horiz_section.eps', format='eps')
     plt.show()
     
 # def plot_TV_figures(Band):
+def prod_VZ(V,Z):
     
+    VZ = np.dot(V,np.reshape(Z,(Z.shape[0],Z.shape[1]*Z.shape[2])))
+    VZ = np.reshape(VZ,(VZ.shape[0],Z.shape[1],Z.shape[2]))
     
+    return VZ  
     
 def get_VZ_J(V,mu):
         
@@ -59,7 +68,7 @@ def get_VZ_true(file_data):
     
     return VZ_true,M,A
 
-def get_result(limit,mu,band,line,flag):
+def get_result(limit,mu,band,line):
     
     Yh = fits.getdata(HS_IM)
     V = fits.getdata(V_acp)
@@ -104,9 +113,8 @@ limit = [25,90,80,220]
 mu = 9
 band = 100
 line = 40
-flag = True
 
-V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line, flag)
+V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line)
 
 norm_true = compute_norm_true(V_true, Z_true)
 norm_diff,band = compute_norm(V_true, V, Z_true, Z, mean)

@@ -35,9 +35,10 @@ def snr(x, y):
 
     return 20 * np.log10(np.linalg.norm(x) / np.linalg.norm(x - y))
 
+
 def get_spa_bandpsf_hs(band, sigma=0):
     # Get a spatial Point Spread Function at wavelength number 'band'. It has to be calculated in the Fourier domain and saved in advance with webbpsf.
-    g_ = fits.getdata(PSF+'H_fft.fits')[:, band]
+    g_ = fits.getdata(PSF+'M_fft.fits')[:, band]
     k, m, n = g_.shape
     g = g_[0]+g_[1]*1.j
     return np.reshape(g, (m, n))
