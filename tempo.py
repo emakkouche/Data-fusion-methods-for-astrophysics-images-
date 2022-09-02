@@ -284,7 +284,7 @@ def compute_VtVZH2(repZ,precomp_term):
     return np.sum(repZ*precomp_term,0)
 
 """------ Precompute terms-------"""
-def preprocessing(Yh,V,Z,Lacp):
+def preprocessing(Yh,V,Z,Lacp,mean):
     #calculer les termes en rouge et jaune
     print('\n****** Preprocessing ******\n')
     
@@ -292,7 +292,19 @@ def preprocessing(Yh,V,Z,Lacp):
     
     Yfft = np.fft.fft2(tools.compute_symmpad_3d(Yh,fact_pad),axes=(1, 2),norm='ortho')
     
+    dim = Yfft.shape
+    
     Zfft = np.fft.fft2(tools.compute_symmpad_3d(Z,fact_pad),axes=(1, 2),norm='ortho')
+    
+    N = Zfft.shape[1]*Zfft.shape[2]
+    mean_ = np.zeros((mean.shape[0], N))
+    mean_[:, 0] = mean*np.sqrt(N)
+    
+    mean_[:, 0] = mean_[:, 0]*tools.get_h_mean()
+      
+    Yfft = np.reshape(Yfft,(Yfft.shape[0],Yfft.shape[1]*Yfft.shape[2])) - mean_
+    
+    Yfft = np.reshape(Yfft,dim)
     
     #Y = process_Yh(Yh)
     
@@ -404,7 +416,7 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     time_iter = []
     
-    NB_ITER = 200         #Nbr max d'itérations
+    NB_ITER = 1000         #Nbr max d'itérations
     EPS_J = 1e-5        #Seuil de variation du critere
     STEP = 1e-6         #Pas d'incrémentation 
     
