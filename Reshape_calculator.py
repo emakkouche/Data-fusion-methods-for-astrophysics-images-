@@ -50,7 +50,7 @@ def snr(x, y):
     Copyright (c) 2014 Gabriel Peyre
     """
 
-    return 20 * np.log10(np.linalg.norm(x) / np.linalg.norm(x - y))
+    return 10 * np.log10(np.linalg.norm(x) / np.linalg.norm(x - y))
 
 #####################Version qui fonctionne####################
 
@@ -318,6 +318,8 @@ def snr(x, y):
 
 """------------Version fonctionnelle V2 12 Juillet------"""
 Band = 4000
+line = 40
+limit = [25,90,80,220]
 
 Yh = fits.getdata(HS_IM)
 
@@ -439,31 +441,48 @@ for k in np.arange(0,len(lambda_list)):
 
 fname = SAVE2+'SNR_TV'
 np.save(fname,err)
-        
+
+fname = SAVE2+'Xbest_TV_mu_'+str(k)+'.fits'
+save_Zoptim(Xbest, fname)
+
+Xinit = Xinit[limit[0]:limit[1],limit[2]:limit[3]]
+Xestim = Xestim[limit[0]:limit[1],limit[2]:limit[3]]
+Xbest = Xbest[limit[0]:limit[1],limit[2]:limit[3]]
+Yblur = Yblur[limit[0]:limit[1],limit[2]:limit[3]]
+       
+
+plt.imshow(Xinit);plt.colorbar()
+plt.title('Référence')
+plt.show()
+
+plt.imshow(Xbest);plt.colorbar()
+# plt.title('Variation totale SNR = '+str(round(np.max(err),2))+'dB')  
+plt.show()
+
+plt.imshow(Yblur);plt.colorbar()
+plt.title('Observée')
+plt.show()
+
+plt.plot(Xinit[line,:])
+plt.show()
+
+plt.plot(Xbest[line,:])
+plt.show()
+plt.plot(Yblur[line,:])
+plt.show()
+
 plt.plot(E)
 plt.axis('tight')
 plt.xlabel('Iteration #')
 plt.ylabel('Energie')
-
-plt.imshow(Xinit);plt.colorbar()
-plt.title('Référence')
-
-plt.imshow(Yblur);plt.colorbar()
-plt.title('Observée')
-
-# plt.imshow(Yh[Band,:,:])
-# plt.title('Observée')
-
-plt.imshow(Xestim);plt.colorbar()
-plt.title('Deconvolution - Variation totale')
+plt.show()
 
 plt.plot(lambda_list,err)
 plt.axis('tight')
 plt.xlabel('\lambda (échelle log)') 
 plt.ylabel('SNR')
 
-plt.imshow(Xbest);plt.colorbar()
-plt.title('Variation totale SNR = '+str(round(np.max(err),2))+'dB')        
+      
 """-------------Version fonctionnelle---------"""
 # Band = 3541
 

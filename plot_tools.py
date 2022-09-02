@@ -12,18 +12,28 @@ from CONSTANTS import *
 
 def plot_band_figures(X,Yh,VZ,band,line):
     
-    plt.imshow(X[band,:,:])
+    plt.imshow(X[band,:,:]);plt.colorbar()
+    plt.savefig(SAVE_IMG+'VZ_true.eps', format='eps')
     plt.show()
-    plt.imshow(VZ[band,:,:])
+    plt.imshow(VZ[band,:,:]);plt.colorbar()
     plt.show()
-    plt.imshow(Yh[band,:,:])
+    plt.savefig(SAVE_IMG+'VZ_recover.eps', format='eps')
+    plt.imshow(Yh[band,:,:]);plt.colorbar()
     plt.show()
+    plt.savefig(SAVE_IMG+'Yh.eps', format='eps')
     plt.plot(X[band,line,:])
     plt.show()
+    plt.savefig(SAVE_IMG+'VZ_true_horiz_section.eps', format='eps')
     plt.plot(VZ[band,line,:])
     plt.show()
+    plt.savefig(SAVE_IMG+'VZ_recover_horiz_section.eps', format='eps')
     plt.plot(Yh[band,line,:])
+    plt.savefig(SAVE_IMG+'Yh_horiz_section.eps', format='eps')
     plt.show()
+    
+# def plot_TV_figures(Band):
+    
+    
     
 def get_VZ_J(V,mu):
         
@@ -33,7 +43,7 @@ def get_VZ_J(V,mu):
     VZ = np.dot(V,np.reshape(Z,(Z.shape[0],Z.shape[1]*Z.shape[2])))
     VZ = np.reshape(VZ,(VZ.shape[0],Z.shape[1],Z.shape[2]))
     
-    return VZ,J
+    return VZ,Z,J
 
 def get_VZ_true(file_data):
     
@@ -47,21 +57,24 @@ def get_VZ_true(file_data):
     
     VZ_true = np.reshape(np.dot(M, np.reshape(A, (n, p*q))), (lh,p, q))
     
-    return VZ_true
+    return VZ_true,M,A
 
 def get_result(limit,mu,band,line,flag):
     
     Yh = fits.getdata(HS_IM)
     V = fits.getdata(V_acp)
+    mean = fits.getdata(DATA+'mean.fits')
     
-    VZ_true = get_VZ_true(DATA) 
-    VZ_recov,critJ = get_VZ_J(V,mu)
+    VZ_true,V_true,Z_true = get_VZ_true(DATA) 
+    VZ_recov,Z,critJ = get_VZ_J(V,mu)
     
     VZ_true = VZ_true[:,limit[0]:limit[1],limit[2]:limit[3]]
     VZ_recov = VZ_recov[:,limit[0]:limit[1],limit[2]:limit[3]]
     Yh = Yh[:,limit[0]:limit[1],limit[2]:limit[3]]
     
     plot_band_figures(VZ_true, Yh, VZ_recov, band, line)
+    
+    return V_true,Z_true,V,Z,mean
    
 def compute_norm(v_true, v, z_true, z, mean):
     lh, lint = v.shape
@@ -74,7 +87,7 @@ def compute_norm(v_true, v, z_true, z, mean):
         band = np.dot(v[l], z) + mean[l]
         band_true = np.dot(v_true[l], z_true)
         norm += np.sum((band-band_true)**2)
-    return norm
+    return norm,band
 
 def compute_norm_true(v_true, z_true):
     lh, lint = v_true.shape
@@ -93,12 +106,12 @@ band = 100
 line = 40
 flag = True
 
-get_result(limit, mu, band, line, flag)
+V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line, flag)
 
-    norm_true = compute_norm_true(v_true, z_true)
-    norm_diff = compute_norm(v_true, v, z_true, z, mean)
-    snr = 10*np.log10(norm_true*(norm_diff)**-1)
-    print('Global SNR = '+str(snr))
+norm_true = compute_norm_true(V_true, Z_true)
+norm_diff,band = compute_norm(V_true, V, Z_true, Z, mean)
+snr = 10*np.log10(norm_true*(norm_diff)**-1)
+print('Global SNR = '+str(snr))
 
 
 
