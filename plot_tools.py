@@ -10,32 +10,53 @@ import numpy as np
 import matplotlib.pyplot as plt
 from CONSTANTS import *
 
-def plot_band_figures(X,Yh,VZ,band,line):
+def plot_band_figures(X,Yh,VZ,limit,band,line,path_file):
     
-    plt.imshow(X[band,:,:]);plt.colorbar()
-    plt.savefig(SAVE_IMG+'VZ_true.eps', format='eps')
+    #------- Affichage de l'image full ------------
+    plt.imshow(X[band,:,:]);
+    plt.savefig(path_file+'VZ_true_full.eps', format='eps')
     plt.show()
     
-    plt.imshow(VZ[band,:,:]);plt.colorbar()
-    plt.savefig(SAVE_IMG+'VZ_recover.eps', format='eps')
+    plt.imshow(VZ[band,:,:]);
+    plt.savefig(path_file+'VZ_recover_full.eps', format='eps')
     plt.show()
     
-    plt.imshow(Yh[band,:,:]);plt.colorbar()
-    plt.savefig(SAVE_IMG+'Yh.eps', format='eps')
+    plt.imshow(Yh[band,:,:]);
+    plt.savefig(path_file+'Yh_full.eps', format='eps')
     plt.show()
+    
+    #------- Coupe horizontale de l'image ------------
     
     plt.plot(X[band,line,:])
-    plt.savefig(SAVE_IMG+'VZ_true_horiz_section.eps', format='eps')
+    plt.savefig(path_file+'VZ_true_horiz_section.eps', format='eps')
     plt.show()
     
     plt.plot(VZ[band,line,:])
-    plt.savefig(SAVE_IMG+'VZ_recover_horiz_section.eps', format='eps')
+    plt.savefig(path_file+'VZ_recover_horiz_section.eps', format='eps')
     plt.show()
     
     plt.plot(Yh[band,line,:])
-    plt.savefig(SAVE_IMG+'Yh_horiz_section.eps', format='eps')
+    plt.savefig(path_file+'Yh_horiz_section.eps', format='eps')
     plt.show()
     
+    #------- Affichage de l'image zoom ------------  
+    X = X[:,limit[0]:limit[1],limit[2]:limit[3]]
+    VZ = VZ[:,limit[0]:limit[1],limit[2]:limit[3]]
+    Yh = Yh[:,limit[0]:limit[1],limit[2]:limit[3]]
+    
+    plt.imshow(X[band,:,:])
+    plt.savefig(path_file+'VZ_true.eps', format='eps')
+    plt.show()
+    
+    plt.imshow(VZ[band,:,:])
+    plt.savefig(path_file+'VZ_recover.eps', format='eps')
+    plt.show()
+    
+    plt.imshow(Yh[band,:,:])
+    plt.savefig(path_file+'Yh.eps', format='eps')
+    plt.show()
+    
+
 # def plot_TV_figures(Band):
 def prod_VZ(V,Z):
     
@@ -68,7 +89,7 @@ def get_VZ_true(file_data):
     
     return VZ_true,M,A
 
-def get_result(limit,mu,band,line):
+def get_result(limit,mu,band,line,path_file):
     
     Yh = fits.getdata(HS_IM)
     V = fits.getdata(V_acp)
@@ -76,12 +97,12 @@ def get_result(limit,mu,band,line):
     
     VZ_true,V_true,Z_true = get_VZ_true(DATA) 
     VZ_recov,Z,critJ = get_VZ_J(V,mu)
+   
+    # VZ_true = VZ_true[:,limit[0]:limit[1],limit[2]:limit[3]]
+    # VZ_recov = VZ_recov[:,limit[0]:limit[1],limit[2]:limit[3]]
+    # Yh = Yh[:,limit[0]:limit[1],limit[2]:limit[3]]
     
-    VZ_true = VZ_true[:,limit[0]:limit[1],limit[2]:limit[3]]
-    VZ_recov = VZ_recov[:,limit[0]:limit[1],limit[2]:limit[3]]
-    Yh = Yh[:,limit[0]:limit[1],limit[2]:limit[3]]
-    
-    plot_band_figures(VZ_true, Yh, VZ_recov, band, line)
+    plot_band_figures(VZ_true, Yh, VZ_recov,limit, band, line,path_file)
     
     return V_true,Z_true,V,Z,mean
    
@@ -110,19 +131,28 @@ def compute_norm_true(v_true, z_true):
   
 #Limite des lignes et colonnes de l'image à extraire
 limit = [25,90,80,220]
+mus = 10**np.linspace(-1, 3, 10)
 mu = 9
 band = 100
 line = 40
+position = (51,21)
+SNR = []
 
-V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line)
+V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line,SAVE_IMG)
 
 norm_true = compute_norm_true(V_true, Z_true)
-norm_diff,band = compute_norm(V_true, V, Z_true, Z, mean)
-snr = 10*np.log10(norm_true*(norm_diff)**-1)
-print('Global SNR = '+str(snr))
 
-
-
+for k in range(len(mus)):
     
+    Zmu = fits.getdata(SAVE2+'Zoptim_mu_'+str(k)+'.fits')
+    norm_diff,band = compute_norm(V_true, V, Z_true, Zmu, mean)
+    SNR.append(10*np.log10(norm_true*(norm_diff)**-1))
+    plt.plot(mus,SNR);plt.xscale('log');plt.show()
+    plt.savefig(SAVE_IMG+'SNR_sobolev.eps', format='eps')
+    
+
+#coordoonées des points où le spectre est correcte:
+#plt.plot(VZ[:,40,100])
+#plt.plot(VZtrue[:,40,100])
     
     
