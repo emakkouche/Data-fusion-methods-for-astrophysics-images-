@@ -147,8 +147,12 @@ for k in range(len(mus)):
     Zmu = fits.getdata(SAVE2+'Zoptim_mu_'+str(k)+'.fits')
     norm_diff,band = compute_norm(V_true, V, Z_true, Zmu, mean)
     SNR.append(10*np.log10(norm_true*(norm_diff)**-1))
-    plt.plot(mus,SNR);plt.xscale('log');plt.show()
-    plt.savefig(SAVE_IMG+'SNR_sobolev.eps', format='eps')
+    
+    
+plt.plot(mus,SNR);plt.xscale('log')
+plt.savefig(SAVE_IMG+'SNR_sobolev.eps', format='eps')    
+fname = SAVE2+'SNR_sobolev'
+np.save(fname,SNR)
     
 
 #coordoonées des points où le spectre est correcte:
