@@ -318,7 +318,7 @@ def preprocessing(Yh,V,Z,Lacp,mean):
     H = process_PSF(Yfft)
     
     fname = SAVE2+'M_fft_PSF_croped'
-    np.save(fname,H)
+    # np.save(fname,H)
     
     VtDvH2,maxH2 = precompute_VtDvH2(V,Lacp,H)    #precomputed_term
     
@@ -417,7 +417,7 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     time_iter = []
     
-    NB_ITER = 1000         #Nbr max d'itérations
+    NB_ITER = 2000         #Nbr max d'itérations
     EPS_J = 1e-5        #Seuil de variation du critere
     STEP = 1e-6         #Pas d'incrémentation 
     
@@ -456,6 +456,8 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
         GradJ_Zk = GradJ(Zk,Lacp,term2,precomp_term,D,mu)
         
         tend = time()
+        
+        print(np.abs((J_ZkOld - J_Zk[-1])/J_ZkOld))
         
         time_iter.append(np.round((tend-tstart)))
         print(str(k)+' -- J(Z) = '+str(J_Zk[-1]))

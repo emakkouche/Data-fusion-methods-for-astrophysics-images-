@@ -116,7 +116,7 @@ Lband,Lin,Col = Zfft.shape
 Zfft = np.reshape(Zfft,(Lband,Lin*Col))
 
 """--------------------Gradient Descent--------------------"""
-mus = 10**np.linspace(-1, 3, 10)
+mus = 10**np.linspace(3,5,10) #(-1, 3, 10)
 
 err = np.zeros((len(mus),1))
 
