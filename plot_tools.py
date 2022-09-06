@@ -40,6 +40,27 @@ def plot_band_figures(X,Yh,VZ,limit,band,line,path_file):
     plt.savefig(path_file+'Yh_full')
     plt.show()
     
+    #------- Affichage spectre de l'image ------------
+    fig,ax =plt.subplots()
+    imgplot = plt.plot(X[:,40,100])
+    ax.set_title('Référence',fontweight='bold')
+    ax.set_xlabel('$\lambda$',fontweight='bold')
+    ax.set_ylabel('Intensité',fontweight='bold')
+    plt.savefig(path_file+'VZ_true_spectre.eps', format='eps')
+    plt.savefig(path_file+'VZ_true_spectre.pdf', format='pdf')
+    plt.savefig(path_file+'VZ_true_spectre')
+    plt.show()
+    
+    fig,ax =plt.subplots()
+    imgplot = plt.plot(VZ[:,40,100])
+    ax.set_title('Sobolev',fontweight='bold')
+    ax.set_xlabel('$\lambda$',fontweight='bold')
+    ax.set_ylabel('Intensité',fontweight='bold')
+    plt.savefig(path_file+'VZ_recov_spectre.eps', format='eps')
+    plt.savefig(path_file+'VZ_recov_spectre.pdf', format='pdf')
+    plt.savefig(path_file+'VZ_recov_spectre')
+    plt.show()
+    
     #------- Coupe horizontale de l'image ------------
     fig,ax = plt.subplots()
     imgplot = plt.plot(X[band,line,:])
@@ -81,6 +102,9 @@ def plot_band_figures(X,Yh,VZ,limit,band,line,path_file):
     plt.plot(VZ[band,line,:],'b',label = 'Sobolev')
     plt.ylabel('Intensité',fontweight='bold')
     plt.legend()
+    plt.savefig(path_file+'superposition_horiz_coupe.eps', format='eps')
+    plt.savefig(path_file+'superposition_horiz_coupe.pdf', format='pdf')
+    plt.savefig(path_file+'superposition_horiz_coupe')
     plt.show()
     
     #------- Affichage de l'image zoom ------------  
@@ -122,6 +146,14 @@ def prod_VZ(V,Z):
     VZ = np.dot(V,np.reshape(Z,(Z.shape[0],Z.shape[1]*Z.shape[2])))
     VZ = np.reshape(VZ,(VZ.shape[0],Z.shape[1],Z.shape[2]))
     
+    return VZ 
+
+def add_mean_VZ(VZ,mean):
+    
+    for k in range(VZ.shape[0]):
+        
+        VZ[k,:,:] += mean[k]
+    
     return VZ  
     
 def get_VZ_J(V,mu):
@@ -156,6 +188,8 @@ def get_result(limit,mu,band,line,path_file):
     
     VZ_true,V_true,Z_true = get_VZ_true(DATA) 
     VZ_recov,Z,critJ = get_VZ_J(V,mu)
+    
+    VZ_recov = add_mean_VZ(VZ_recov, mean)
    
     # VZ_true = VZ_true[:,limit[0]:limit[1],limit[2]:limit[3]]
     # VZ_recov = VZ_recov[:,limit[0]:limit[1],limit[2]:limit[3]]
@@ -191,7 +225,7 @@ def compute_norm_true(v_true, z_true):
 #Limite des lignes et colonnes de l'image à extraire
 limit = [25,90,80,220]
 mus = 10**np.linspace(3,5,10)
-mu = 9
+mu = 3
 band = 100
 line = 40
 position = (51,21)
