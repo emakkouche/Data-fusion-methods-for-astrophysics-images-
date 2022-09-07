@@ -52,6 +52,22 @@ def snr(x, y):
 
     return 10 * np.log10(np.linalg.norm(x) / np.linalg.norm(x - y))
 
+def psnr(x, y):
+    """
+    snr - signal to noise ratio
+
+       v = snr(x,y);
+
+     v = 20*log10( norm(x(:)) / norm(x(:)-y(:)) )
+
+       x is the original clean signal (reference).
+       y is the denoised signal.
+
+    Copyright (c) 2014 Gabriel Peyre
+    """
+
+    return 10 * np.log10(np.max(x)**2 / np.linalg.norm(x - y))
+
 #####################Version qui fonctionne####################
 
 # Hreshaped = np.zeros((90,354),dtype = complex)
@@ -320,6 +336,7 @@ def snr(x, y):
 Band = 4000
 line = 40
 limit = [25,90,80,220]
+path_file = '/media/e.akkouche/DONNEES/Fusion_data/test_file2/'
 
 Yh = fits.getdata(HS_IM)
 
@@ -373,8 +390,8 @@ repeat3 = lambda x,k: resize( np.repeat( x, k, axis=1), [90, 354, k])
 
 """-------"""
 epsilon = 0.2
-# lambda_list = np.linspace(0,2,20)
-lambda_list = np.linspace(0,3,10)
+lambda_list = np.linspace(0,2,20)
+
 
 tau = 1.9 / ( 1 + max(lambda_list) * 8 / epsilon)
 
@@ -428,59 +445,156 @@ for k in np.arange(0,len(lambda_list)):
         i = i+1
     
     err[k] = snr(Xinit,Xestim)
+    errmax[k] = psnr(Xinit,Xestim)
     
     if err[k] > snr(Xinit,Xbest):
         Xbest = Xestim
 
-    fname = SAVE2+'XoptimTV_mu_'+str(k)+'.fits'
+    fname = path_file+'XoptimTV_mu_'+str(k)+'.fits'
     save_Zoptim(Xestim, fname)
         
-    fname = SAVE2+'JTV_mu_'+str(k)
+    fname = path_file+'JTV_mu_'+str(k)
     np.save(fname,E)
 
+#------------------------------------------------------
+fig,ax =plt.subplots()
+img_plot = plt.plot(lambda_list,err);plt.xscale('log')
+ax.set_ylabel('SNR(dB)',fontweight='bold')
+ax.set_xlabel('µ',fontweight='bold')
+plt.savefig(path_file+'SNR_TV.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'SNR_TV.pdf', format='pdf',bbox_inches='tight') 
+plt.savefig(path_file+'SNR_TV')  
 
-fname = SAVE2+'SNR_TV'
-np.save(fname,err)
+fig,ax =plt.subplots()
+imgplot = plt.imshow(Xinit);
+ax.set_title('Référence',fontweight='bold')
+plt.axis('off')
+plt.savefig(path_file+'X_TV_recover_full.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'X_TV_recover_full.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'X_TV_recover_full',bbox_inches='tight')
+plt.show()
 
-fname = SAVE2+'Xbest_TV_mu_'+str(k)+'.fits'
-save_Zoptim(Xbest, fname)
+fig,ax =plt.subplots()
+imgplot = plt.imshow(Xbest);
+ax.set_title('Variation totale',fontweight='bold')
+plt.axis('off')
+plt.savefig(path_file+'Xbest_TV_recover_full.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'Xbest_TV_recover_full.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'Xbest_TV_recover_full',bbox_inches='tight')
+plt.show()
 
+#------------------------------------------------------
+fig,ax = plt.subplots()
+imgplot =plt.plot(Xinit[line,:])
+ax.set_ylabel('Intensité',fontweight='bold')
+plt.savefig(path_file+'X_TV_horiz_section.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'X_TV_horiz_section.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'X_TV_horiz_section',bbox_inches='tight')
+plt.show()
+
+fig,ax = plt.subplots()
+imgplot =plt.plot(Xbest[line,:])
+ax.set_ylabel('Intensité',fontweight='bold')
+plt.savefig(path_file+'Xbest_TV_horiz_section.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'Xbest_TV_horiz_section.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'Xbest_TV_horiz_section',bbox_inches='tight')
+plt.show()
+
+fig,ax = plt.subplots()
+imgplot =plt.plot(Yblur[line,:])
+ax.set_title('Observée',fontweight='bold')
+ax.set_ylabel('Intensité',fontweight='bold')
+plt.savefig(path_file+'Yh_horiz_section.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'Yh_horiz_section.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'Yh_horiz_section',bbox_inches='tight')
+plt.show()
+#----------------------Horiz section superposition---------------------
+plt.plot(Xinit[line,:],'r',label = 'Référence')
+plt.plot(Xbest[line,:],'b',label = 'Variation totale')
+plt.ylabel('Intensité',fontweight='bold')
+plt.legend()
+plt.savefig(path_file+'TV_superposition_horiz_coupe.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'TV_superposition_horiz_coupe.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'TV_superposition_horiz_coupe',bbox_inches='tight')
+plt.show()
+
+#------- Affichage de l'image zoom ------------  
 Xinit = Xinit[limit[0]:limit[1],limit[2]:limit[3]]
-Xestim = Xestim[limit[0]:limit[1],limit[2]:limit[3]]
 Xbest = Xbest[limit[0]:limit[1],limit[2]:limit[3]]
 Yblur = Yblur[limit[0]:limit[1],limit[2]:limit[3]]
+
+fig,ax =plt.subplots()
+img_plot = plt.imshow(Xinit)
+ax.set_title('Référence',fontweight='bold')
+plt.axis('off')
+plt.savefig(path_file+'X_TV_true.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'X_TV_true.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'X_TV_true',bbox_inches='tight')
+plt.show()
+
+fig,ax =plt.subplots()
+img_plot = plt.imshow(Xbest)
+ax.set_title('Variation totale',fontweight='bold')
+plt.axis('off')
+plt.savefig(path_file+'Xbest_TV_recover.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'Xbest_TV_recover.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'Xbest_TV_recover',bbox_inches='tight')
+plt.show()
+
+ 
+fig,ax = plt.subplots()
+imgplot = plt.plot(E)
+ax.set_xlabel('Itération',fontweight='bold')
+ax.set_ylabel('Energie',fontweight='bold')
+plt.savefig(path_file+'CritJ.eps', format='eps',bbox_inches='tight')
+plt.savefig(path_file+'CritJ.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(path_file+'CritJ',bbox_inches='tight')
+plt.show()
+
+
+
+# fname = SAVE2+'SNR_TV'
+# np.save(fname,err)
+
+# fname = SAVE2+'Xbest_TV_mu_'+str(k)+'.fits'
+# save_Zoptim(Xbest, fname)
+
+# Xinit = Xinit[limit[0]:limit[1],limit[2]:limit[3]]
+# Xestim = Xestim[limit[0]:limit[1],limit[2]:limit[3]]
+# Xbest = Xbest[limit[0]:limit[1],limit[2]:limit[3]]
+# Yblur = Yblur[limit[0]:limit[1],limit[2]:limit[3]]
        
 
-plt.imshow(Xinit);plt.colorbar()
-plt.title('Référence')
-plt.show()
+# plt.imshow(Xinit);plt.colorbar()
+# plt.title('Référence')
+# plt.show()
 
-plt.imshow(Xbest);plt.colorbar()
-# plt.title('Variation totale SNR = '+str(round(np.max(err),2))+'dB')  
-plt.show()
+# plt.imshow(Xbest);plt.colorbar()
+# # plt.title('Variation totale SNR = '+str(round(np.max(err),2))+'dB')  
+# plt.show()
 
-plt.imshow(Yblur);plt.colorbar()
-plt.title('Observée')
-plt.show()
+# plt.imshow(Yblur);plt.colorbar()
+# plt.title('Observée')
+# plt.show()
 
-plt.plot(Xinit[line,:])
-plt.show()
+# plt.plot(Xinit[line,:])
+# plt.show()
 
-plt.plot(Xbest[line,:])
-plt.show()
-plt.plot(Yblur[line,:])
-plt.show()
+# plt.plot(Xbest[line,:])
+# plt.show()
+# plt.plot(Yblur[line,:])
+# plt.show()
 
-plt.plot(E)
-plt.axis('tight')
-plt.xlabel('Iteration #')
-plt.ylabel('Energie')
-plt.show()
+# plt.plot(E)
+# plt.axis('tight')
+# plt.xlabel('Iteration #')
+# plt.ylabel('Energie')
+# plt.show()
 
-plt.plot(lambda_list,err)
-plt.axis('tight')
-plt.xlabel('\lambda (échelle log)') 
-plt.ylabel('SNR')
+# plt.plot(lambda_list,err)
+# plt.axis('tight')
+# plt.xlabel('\lambda (échelle log)') 
+# plt.ylabel('SNR')
 
       
 """-------------Version fonctionnelle---------"""

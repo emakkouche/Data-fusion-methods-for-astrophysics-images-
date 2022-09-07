@@ -101,8 +101,8 @@ t1 = time()
 #V = fits.getdata(V_acp)
 #Z = fits.getdata(Z_acp)
 
-#B,L,C = Z.shape
-#Z = np.random.rand(B,L,C)
+B,L,C = Z.shape
+Z = np.zeros(B,L,C)
 
 """--------------------Preprocessing--------------------"""
 Yfft,Zfft,H,T1,T2,maxH2,D,preprocess_time = preprocessing(Yh,V,Z,Lacp,mean)

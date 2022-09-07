@@ -10,34 +10,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 from CONSTANTS import *
 
-def plot_band_figures(X,Yh,VZ,limit,band,line,path_file):
+def plot_band_figures(X,Yh,VZ,critJ,limit,band,line,path_file):
     
     #------- Affichage de l'image full ------------
     fig,ax =plt.subplots()
     imgplot = plt.imshow(X[band,:,:])
     ax.set_title('Référence',fontweight='bold')
     plt.axis('off')
-    plt.savefig(path_file+'VZ_true_full.eps', format='eps')
-    plt.savefig(path_file+'VZ_true_full.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_true_full')
+    plt.savefig(path_file+'VZ_true_full.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true_full.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true_full',bbox_inches='tight')
     plt.show()
     
     fig,ax =plt.subplots()
     imgplot = plt.imshow(VZ[band,:,:]);
     ax.set_title('Sobolev',fontweight='bold')
     plt.axis('off')
-    plt.savefig(path_file+'VZ_recover_full.eps', format='eps')
-    plt.savefig(path_file+'VZ_recover_full.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_recover_full')
+    plt.savefig(path_file+'VZ_recover_full.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recover_full.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recover_full',bbox_inches='tight')
     plt.show()
     
     fig,ax =plt.subplots()
     imgplot = plt.imshow(Yh[band,:,:]);
     ax.set_title('Observée',fontweight='bold')
     plt.axis('off')
-    plt.savefig(path_file+'Yh_full.eps', format='eps')
-    plt.savefig(path_file+'Yh_full.pdf', format='pdf')
-    plt.savefig(path_file+'Yh_full')
+    plt.savefig(path_file+'Yh_full.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'Yh_full.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'Yh_full',bbox_inches='tight')
     plt.show()
     
     #------- Affichage spectre de l'image ------------
@@ -46,9 +46,9 @@ def plot_band_figures(X,Yh,VZ,limit,band,line,path_file):
     ax.set_title('Référence',fontweight='bold')
     ax.set_xlabel('$\lambda$',fontweight='bold')
     ax.set_ylabel('Intensité',fontweight='bold')
-    plt.savefig(path_file+'VZ_true_spectre.eps', format='eps')
-    plt.savefig(path_file+'VZ_true_spectre.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_true_spectre')
+    plt.savefig(path_file+'VZ_true_spectre.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true_spectre.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true_spectre',bbox_inches='tight')
     plt.show()
     
     fig,ax =plt.subplots()
@@ -56,55 +56,58 @@ def plot_band_figures(X,Yh,VZ,limit,band,line,path_file):
     ax.set_title('Sobolev',fontweight='bold')
     ax.set_xlabel('$\lambda$',fontweight='bold')
     ax.set_ylabel('Intensité',fontweight='bold')
-    plt.savefig(path_file+'VZ_recov_spectre.eps', format='eps')
-    plt.savefig(path_file+'VZ_recov_spectre.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_recov_spectre')
+    plt.savefig(path_file+'VZ_recov_spectre.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recov_spectre.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recov_spectre',bbox_inches='tight')
     plt.show()
+    
+    fig,ax =plt.subplots()
+    imgplot = plt.plot(Yh[:,40,100])
+    ax.set_title('Observée',fontweight='bold')
+    ax.set_xlabel('$\lambda$',fontweight='bold')
+    ax.set_ylabel('Intensité',fontweight='bold')
+    plt.savefig(path_file+'Yh_spectre.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'Yh_spectre.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'Yh_spectre',bbox_inches='tight')
+    plt.show()
+    
     
     #------- Coupe horizontale de l'image ------------
     fig,ax = plt.subplots()
     imgplot = plt.plot(X[band,line,:])
     ax.set_title('Référence',fontweight='bold')
     ax.set_ylabel('Intensité',fontweight='bold')
-    plt.savefig(path_file+'VZ_true_horiz_section.eps', format='eps')
-    plt.savefig(path_file+'VZ_true_horiz_section.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_true_horiz_section')
+    plt.savefig(path_file+'VZ_true_horiz_section.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true_horiz_section.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true_horiz_section',bbox_inches='tight')
     plt.show()
     
     fig,ax = plt.subplots()
     imgplot =plt.plot(VZ[band,line,:])
     ax.set_title('Sobolev',fontweight='bold')
     ax.set_ylabel('Intensité',fontweight='bold')
-    plt.savefig(path_file+'VZ_recover_horiz_section.eps', format='eps')
-    plt.savefig(path_file+'VZ_recover_horiz_section.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_recover_horiz_section')
+    plt.savefig(path_file+'VZ_recover_horiz_section.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recover_horiz_section.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recover_horiz_section',bbox_inches='tight')
     plt.show()
     
     fig,ax = plt.subplots()
     imgplot =plt.plot(Yh[band,line,:])
     ax.set_title('Observée',fontweight='bold')
     ax.set_ylabel('Intensité',fontweight='bold')
-    plt.savefig(path_file+'Yh_horiz_section.eps', format='eps')
-    plt.savefig(path_file+'Yh_horiz_section.pdf', format='pdf')
-    plt.savefig(path_file+'Yh_horiz_section')
+    plt.savefig(path_file+'Yh_horiz_section.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'Yh_horiz_section.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'Yh_horiz_section',bbox_inches='tight')
     plt.show()
     
-    #------------ subplot ------------------
-    # fig = plt.figure()
-    # ax = fig.add_subplot(1, 2, 1)
-    # imgplot = plt.imshow(X[band,:,:]);
-    # ax.set_title('Référence')
-    # ax = fig.add_subplot(1, 2, 2)
-    # imgplot = plt.imshow(VZ[band,:,:]);
-    # ax.set_title('Reconstruite')
     
     plt.plot(X[band,line,:],'r',label = 'Référence')
     plt.plot(VZ[band,line,:],'b',label = 'Sobolev')
     plt.ylabel('Intensité',fontweight='bold')
     plt.legend()
-    plt.savefig(path_file+'superposition_horiz_coupe.eps', format='eps')
-    plt.savefig(path_file+'superposition_horiz_coupe.pdf', format='pdf')
-    plt.savefig(path_file+'superposition_horiz_coupe')
+    plt.savefig(path_file+'superposition_horiz_coupe.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'superposition_horiz_coupe.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'superposition_horiz_coupe',bbox_inches='tight')
     plt.show()
     
     #------- Affichage de l'image zoom ------------  
@@ -116,29 +119,38 @@ def plot_band_figures(X,Yh,VZ,limit,band,line,path_file):
     img_plot = plt.imshow(X[band,:,:])
     ax.set_title('Référence',fontweight='bold')
     plt.axis('off')
-    plt.savefig(path_file+'VZ_true.eps', format='eps')
-    plt.savefig(path_file+'VZ_true.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_true')
+    plt.savefig(path_file+'VZ_true.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_true',bbox_inches='tight')
     plt.show()
     
     fig,ax =plt.subplots()
     img_plot = plt.imshow(VZ[band,:,:])
     ax.set_title('Sobolev',fontweight='bold')
     plt.axis('off')
-    plt.savefig(path_file+'VZ_recover.eps', format='eps')
-    plt.savefig(path_file+'VZ_recover.pdf', format='pdf')
-    plt.savefig(path_file+'VZ_recover')
+    plt.savefig(path_file+'VZ_recover.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recover.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'VZ_recover',bbox_inches='tight')
     plt.show()
     
     fig,ax =plt.subplots()
     img_plot = plt.imshow(Yh[band,:,:])
     ax.set_title('Observée',fontweight='bold')
     plt.axis('off')
-    plt.savefig(path_file+'Yh.eps', format='eps')
-    plt.savefig(path_file+'Yh.pdf', format='pdf')
-    plt.savefig(path_file+'Yh')
+    plt.savefig(path_file+'Yh.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'Yh.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'Yh',bbox_inches='tight')
     plt.show()
     
+    
+    fig,ax = plt.subplots()
+    imgplot = plt.plot(critJ)
+    ax.set_xlabel('Itération',fontweight='bold')
+    ax.set_ylabel('Energie',fontweight='bold')
+    plt.savefig(path_file+'CritJ.eps', format='eps',bbox_inches='tight')
+    plt.savefig(path_file+'CritJ.pdf', format='pdf',bbox_inches='tight')
+    plt.savefig(path_file+'CritJ',bbox_inches='tight')
+    plt.show()
 
 # def plot_TV_figures(Band):
 def prod_VZ(V,Z):
@@ -195,7 +207,7 @@ def get_result(limit,mu,band,line,path_file):
     # VZ_recov = VZ_recov[:,limit[0]:limit[1],limit[2]:limit[3]]
     # Yh = Yh[:,limit[0]:limit[1],limit[2]:limit[3]]
     
-    plot_band_figures(VZ_true, Yh, VZ_recov,limit, band, line,path_file)
+    plot_band_figures(VZ_true, Yh, VZ_recov,critJ,limit, band, line,path_file)
     
     return V_true,Z_true,V,Z,mean
    
@@ -221,35 +233,66 @@ def compute_norm_true(v_true, z_true):
         band_true = np.dot(v_true[l], z_true)
         norm += np.sum(band_true**2)
     return norm
-  
+
+def search_max(v, z):
+    max_ = 0
+    lh, lint = v.shape
+    px, py = z.shape[1:]
+    z = np.reshape(z, (lint, px*py))
+    for l in range(lh):
+        band = np.dot(v[l], z)
+        max_band = np.max(band)
+        if max_band > max_:
+            max_ = max_band
+    return max_
+
 #Limite des lignes et colonnes de l'image à extraire
 limit = [25,90,80,220]
 mus = 10**np.linspace(3,5,10)
-mu = 3
+mu = 7
 band = 100
 line = 40
 position = (51,21)
 SNR = []
+PSNR = []
 
 V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line,SAVE_IMG)
 
 norm_true = compute_norm_true(V_true, Z_true)
 
+max_true = search_max(V_true, Z_true)
+
+lh = V.shape[0]
+px,py = Z.shape[1:]
+
 for k in range(len(mus)):
     
     Zmu = fits.getdata(SAVE2+'Zoptim_mu_'+str(k)+'.fits')
     norm_diff,band = compute_norm(V_true, V, Z_true, Zmu, mean)
+    PSNR.append(10*np.log10(max_true**2*(norm_diff)**-1*lh*px*py))
     SNR.append(10*np.log10(norm_true*(norm_diff)**-1))
+    
+fig,ax =plt.subplots()
+img_plot = plt.plot(mus,PSNR);plt.xscale('log')
+ax.set_ylabel('PSNR(dB)',fontweight='bold')
+ax.set_xlabel('µ',fontweight='bold')
+plt.savefig(SAVE_IMG+'PSNR_sobolev.eps', format='eps',bbox_inches='tight')
+plt.savefig(SAVE_IMG+'PSNR_sobolev.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(SAVE_IMG+'PSNR_sobolev',bbox_inches='tight')
+
 
 fig,ax =plt.subplots()
 img_plot = plt.plot(mus,SNR);plt.xscale('log')
 ax.set_ylabel('SNR(dB)',fontweight='bold')
 ax.set_xlabel('µ',fontweight='bold')
-plt.savefig(SAVE_IMG+'SNR_sobolev.eps', format='eps')
-plt.savefig(SAVE_IMG+'SNR_sobolev.pdf', format='pdf') 
-plt.savefig(SAVE_IMG+'SNR_sobolev')  
+plt.savefig(SAVE_IMG+'SNR_sobolev.eps', format='eps',bbox_inches='tight')
+plt.savefig(SAVE_IMG+'SNR_sobolev.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(SAVE_IMG+'SNR_sobolev',bbox_inches='tight')
 
-   
+       
+fname = SAVE2+'PSNR_sobolev'
+np.save(fname,PSNR)
+
 fname = SAVE2+'SNR_sobolev'
 np.save(fname,SNR)
     

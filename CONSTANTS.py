@@ -23,8 +23,9 @@ Paths for data and saving files
 DATA = '/media/e.akkouche/DONNEES/Fusion_data/Data/'
 #SAVE = 'Expe/'
 SAVE = '/media/e.akkouche/DONNEES/Fusion_data/Save_result/'
-SAVE2 = '/media/e.akkouche/DONNEES/Fusion_data/result_sobolev_05_09_Mfft/'
-SAVE_IMG = '/media/e.akkouche/DONNEES/Fusion_data/result_img_05_09_Mfft/mu_qlconque/'
+SAVE2 = '/media/e.akkouche/DONNEES/Fusion_data/result_sobolev_07_09_Mfft/'
+SAVE_IMG = '/media/e.akkouche/DONNEES/Fusion_data/result_img_07_09_Mfft/mu_best'
+SAVE_IMG = '/media/e.akkouche/DONNEES/Fusion_data/test_file/'
 PSF = DATA+'PSF/'
 SAVE_PATH = SAVE+'z_optim.fits'
 

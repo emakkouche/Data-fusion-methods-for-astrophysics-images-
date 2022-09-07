@@ -33,7 +33,7 @@ def snr(x, y):
     Copyright (c) 2014 Gabriel Peyre
     """
 
-    return 20 * np.log10(np.linalg.norm(x) / np.linalg.norm(x - y))
+    return 10 * np.log10(np.linalg.norm(x) / np.linalg.norm(x - y))
 
 
 def get_spa_bandpsf_hs(band, sigma=0):
@@ -417,8 +417,9 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     time_iter = []
     
-    NB_ITER = 2000         #Nbr max d'itérations
+    NB_ITER = 4000         #Nbr max d'itérations
     EPS_J = 1e-5        #Seuil de variation du critere
+    EPS_Z = 1e-3
     STEP = 1e-6         #Pas d'incrémentation 
     
     k = 0
@@ -439,13 +440,15 @@ def GD(Y,V,Z,H,Lacp,term2,precomp_term,D,mu,maxH2):
     
     print(str(k)+' -- J(Z) = '+str(J_Zk[-1]))
     
-    while (k < NB_ITER) and np.abs((J_ZkOld - J_Zk[-1])/J_ZkOld)> EPS_J: #while k<NB_ITER and (norm(Zold-Z) > EPS_Z or norm(J_Zold-J_Z) > EPS_J)
+    while (k < NB_ITER) and np.abs((J_ZkOld - J_Zk[-1])/J_ZkOld)> EPS_J: #(np.linalg.norm(Zk_Old-Zk)/np.linalg.norm(Zk_Old))>EPS_Z   np.abs((J_ZkOld - J_Zk[-1])/J_ZkOld)> EPS_J: while k<NB_ITER and (norm(Zold-Z) > EPS_Z or norm(J_Zold-J_Z) > EPS_J)
         
         tstart = time()
         
         k += 1
         
         J_ZkOld = J_Zk[-1]
+        
+        Zk_Old = Zk
 
         Zk =  Zk + STEP * -GradJ_Zk
         
