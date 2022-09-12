@@ -209,7 +209,7 @@ def get_result(limit,mu,band,line,path_file):
     
     plot_band_figures(VZ_true, Yh, VZ_recov,critJ,limit, band, line,path_file)
     
-    return V_true,Z_true,V,Z,mean
+    return Yh,V_true,Z_true,V,Z,mean
    
 def compute_norm(v_true, v, z_true, z, mean):
     lh, lint = v.shape
@@ -246,6 +246,27 @@ def search_max(v, z):
             max_ = max_band
     return max_
 
+def compute_error(v_true, v, z_true, z, mean):
+    
+    lh, lint = v.shape
+    px, py = z.shape[1:]
+    # Compute sam
+    print('Compute SAM ...')
+    sam = np.zeros((px, py))
+    for i in range(px):
+        for j in range(py):
+            spec_true = np.dot(v_true, z_true[:, i, j])
+            spec = np.dot(v, z[:, i, j]) + mean
+            sam[i, j] = compute_sam(spec_true, spec)
+    print('Mean SAM = '+str(np.mean(sam)))
+    print('Max SAM = '+str(np.max(sam)))
+    
+def compute_sam(s, s_hat):
+    return np.arccos(np.dot(s, s_hat.T)*(np.linalg.norm(s)*np.linalg.norm(s_hat))**-1)
+
+def calc_sigma(Lm, snr=50):
+    return np.linalg.norm(Lm)**2*10**(-0.1*snr)*(1/np.prod(Lm.shape))
+
 #Limite des lignes et colonnes de l'image à extraire
 limit = [25,90,80,220]
 mus = 10**np.linspace(3,5,10)
@@ -253,14 +274,21 @@ mu = 7
 band = 100
 line = 40
 position = (51,21)
+trunc = 100
 SNR = []
 PSNR = []
 
-V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line,SAVE_IMG)
+Yh,V_true,Z_true,V,Z,mean = get_result(limit, mu, band, line,SAVE_IMG)
 
 norm_true = compute_norm_true(V_true, Z_true)
 
 max_true = search_max(V_true, Z_true)
+
+SAM = compute_error(V_true, V, Z_true, Z, mean)
+
+S = mycheck_pca.my_choose_subspace(HS_IM)
+
+sigma = calc_sigma(Yh,snr=60)
 
 lh = V.shape[0]
 px,py = Z.shape[1:]
@@ -295,7 +323,18 @@ np.save(fname,PSNR)
 
 fname = SAVE2+'SNR_sobolev'
 np.save(fname,SNR)
-    
+
+fig,ax =plt.subplots()
+img_plot = plt.plot(np.sqrt(S[:]),'*')
+ax.set_xlabel('Indice',fontweight='bold')
+ax.set_ylabel('Valeur propre',fontweight='bold')
+plt.savefig(SAVE_IMG+'ACP_tronc.eps', format='eps',bbox_inches='tight')
+plt.savefig(SAVE_IMG+'ACP_tronc.pdf', format='pdf',bbox_inches='tight')
+plt.savefig(SAVE_IMG+'ACP_tronc',bbox_inches='tight')
+
+fname = SAVE2+'Singular_value'
+np.save(fname,S)
+
 
 #coordoonées des points où le spectre est correcte:
 #plt.plot(VZ[:,40,100])
