@@ -29,7 +29,7 @@ warnings.filterwarnings('ignore')
 
 """--------------------Generate image X and Yh--------------------"""
 #Yh = myproduce_HS_MS.main(DATA,DATA)
-#Yh = simulate_HS_MS.main(DATA, DATA,sigma2 = 0.1)
+# Yh = simulate_HS_MS.main(DATA, DATA,sigma2 = 1)
 """--------------------Choose subspace dimension------------------"""
 #S = mycheck_pca.my_choose_subspace(HS_IM)
 
@@ -55,7 +55,7 @@ warnings.filterwarnings('ignore')
 # Yh = fits.getdata(HS_IM)
 Lacp = 10
 
-#V, Z, mean = mycheck_pca.my_pca_nirspec(Yh,Lacp)
+# V, Z, mean = mycheck_pca.my_pca_nirspec(Yh,Lacp)
 
 # # print('\n********** Saving PCA **********\n')
 
@@ -102,7 +102,7 @@ t1 = time()
 #Z = fits.getdata(Z_acp)
 
 B,L,C = Z.shape
-Z = np.zeros(B,L,C)
+Z = np.random.rand(B,L,C)
 
 """--------------------Preprocessing--------------------"""
 Yfft,Zfft,H,T1,T2,maxH2,D,preprocess_time = preprocessing(Yh,V,Z,Lacp,mean)
